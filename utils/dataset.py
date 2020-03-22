@@ -46,7 +46,7 @@ def preprocess_input(x):
     x *= 2.
     return x
 
-def _parse_fn(example_serialized, is_training):
+def _parse_fn(example_serialized, is_training, data_agumentation):
     """Helper function for parse_fn_train() and parse_fn_valid()
 
     Each Example proto (TFRecord) contains the following fields:
@@ -94,7 +94,7 @@ def _parse_fn(example_serialized, is_training):
 
 
 
-def get_dataset(tfrecords_dir, subset, batch_size):
+def get_dataset(tfrecords_dir, subset, batch_size, data_agumentation):
     """Read TFRecords files and turn them into a TFRecordDataset."""
     files = tf.matching_files(os.path.join(tfrecords_dir, '%s-*' % subset))
     shards = tf.data.Dataset.from_tensor_slices(files)
@@ -103,7 +103,8 @@ def get_dataset(tfrecords_dir, subset, batch_size):
     dataset = shards.interleave(tf.data.TFRecordDataset, cycle_length=4)
     dataset = dataset.shuffle(buffer_size=8192)
     parser = partial(
-        _parse_fn, is_training=True if subset == 'train' else False)
+        _parse_fn, is_training=True if subset == 'train' else False,
+        data_agumentation=data_agumentation)
     dataset = dataset.apply(
         tf.data.experimental.map_and_batch(
             map_func=parser,

@@ -8,7 +8,7 @@ usage()
     echo "Usage: ./trash_new.sh <model_name>"
     echo
     echo "where <model_name> could be one of the following:"
-    echo "    mobilenet_v2, resnet50, googlenet_bn, inception_v2,"
+    echo "    xception, mobilenet_v2, resnet50, googlenet_bn, inception_v2,"
     echo "    efficientnet_b0, efficientnet_b1, efficientnet_b4"
     echo
 }
@@ -19,6 +19,20 @@ if [ $# -ne 1 ]; then
 fi
 
 case $1 in
+    xception )
+        python3 train.py --dropout_rate 0.5 --weight_decay 1e-5 \
+                         --optimizer adam --batch_size 64 --iter_size 1 \
+                         --lr_sched exp --initial_lr 0.045 --final_lr 1e-5 \
+                         --epochs 200
+        ;;
+    """
+    xception )
+        python3 train.py --dropout_rate 0.5 --weight_decay 1e-5 \
+                         --optimizer adam --batch_size 64 --iter_size 1 \
+                         --lr_sched exp --initial_lr 0.045 --final_lr 1e-5 \
+                         --epochs 60
+        ;;
+    """
     mobilenet_v2 )
         python3 train.py --dropout_rate 0.2 --weight_decay 1e-6 \
                          --optimizer adam --batch_size 64 --iter_size 1 \

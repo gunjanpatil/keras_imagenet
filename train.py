@@ -39,14 +39,15 @@ $ python3 train.py --dataset_dir  ${HOME}/data/ILSVRC2012/tfrecords \
 """
 SUPPORTED_MODELS = (
     '"mobilenet_v2", "resnet50", "googlenet_bn", "inception_v2", '
-    '"efficientnet_b0", "efficientnet_b1", "efficientnet_b4", '
+    '"efficientnet_b0", "efficientnet_b1", "efficientnet_b4", "xception"'
     '"osnet" or just specify a saved Keras model (.h5) file')
 
 
 def train(model_name, dropout_rate, optim_name,
           use_lookahead, batch_size, iter_size,
           lr_sched, initial_lr, final_lr,
-          weight_decay, epochs, dataset_dir, model_save_dir, log_dir):
+          weight_decay, epochs, dataset_dir, model_save_dir, log_dir,
+          data_agumentation, *, model=None):
     """Prepare data and train the model."""
     batch_size   = get_batch_size(model_name, batch_size)
     iter_size    = get_iter_size(model_name, iter_size)
@@ -78,7 +79,8 @@ def train(model_name, dropout_rate, optim_name,
         optimizer=optimizer,
         use_lookahead=use_lookahead,
         iter_size=iter_size,
-        weight_decay=weight_decay)
+        weight_decay=weight_decay,
+        model=model)
     model.fit(
         x=ds_train,
         steps_per_epoch=1277108 // batch_size,
@@ -100,9 +102,9 @@ def main():
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--dataset_dir', type=str,
                         default=config.DEFAULT_DATASET_DIR)
-    parser.add_argument('--model-save-dir', help="directory to save intermediate models',\ 
+    parser.add_argument('--model-save-dir', help="directory to save intermediate models',\
                        type=str, default="/mnt/nas01/workspace_share/data/images/imagenet_training/models")
-    parser.add_argument('--log-dir', help="directory to save tensorboard logs',\ 
+    parser.add_argument('--log-dir', help="directory to save tensorboard logs',\
                        type=str, default="/mnt/nas01/workspace_share/data/images/imagenet_training/models")
     parser.add_argument('--dropout_rate', type=float, default=0.0)
     parser.add_argument('--optimizer', type=str, default='adam',
@@ -117,18 +119,21 @@ def main():
     parser.add_argument('--weight_decay', type=float, default=-1.)
     parser.add_argument('--epochs', type=int, default=1,
                         help='total number of epochs for training [1]')
-    parser.add_argument('model', type=str,
-                        help=SUPPORTED_MODELS)
+    parser.add_argument('--data-agumentation',type=bool,
+                        help="whether to augment data or not", action="store_true")
+    parser.add_argument('--model', type=str,help="path to model h5 file to be loaded")
+    parser.add_argument('--model-name', type=str,help=SUPPORTED_MODELS, default="xception")
     args = parser.parse_args()
 
     if args.use_lookahead and args.iter_size > 1:
         raise ValueError('cannot set both use_lookahead and iter_size')
-    
+
         config_keras_backend()
-    train(args.model, args.dropout_rate, args.optimizer,
+    train(args.model_name, args.dropout_rate, args.optimizer,
           args.use_lookahead, args.batch_size, args.iter_size,
           args.lr_sched, args.initial_lr, args.final_lr,
-          args.weight_decay, args.epochs, args.dataset_dir, args.model_save_dir, args.log_dir)
+          args.weight_decay, args.epochs, args.dataset_dir, args.model_save_dir,
+          args.log_dir, args.data_agumentation, model=args.model)
     clear_keras_session()
 
 

@@ -151,15 +151,14 @@ def get_optimizer(model_name, optim_name, initial_lr, epsilon=1e-1):
 
 
 def get_training_model(model_name, dropout_rate, optimizer,
-                       use_lookahead, iter_size, weight_decay):
+                       use_lookahead, iter_size, weight_decay, model=None):
     """Build the model to be trained."""
-    if model_name.endswith('.h5'):
+    if model:
         # load a saved model
-        model = tf.keras.models.load_model(
-            model_name,
+        _model = tf.keras.models.load_model(
+            model,
             custom_objects={'AdamW': AdamW})
     else:
-        """
         # initialize the model from scratch
         model_class = {
             'mobilenet_v2': tf.keras.applications.mobilenet_v2.MobileNetV2,
@@ -170,11 +169,11 @@ def get_training_model(model_name, dropout_rate, optimizer,
             'efficientnet_b1': EfficientNetB1_224x224,
             'efficientnet_b4': EfficientNetB4_224x224,
             'osnet': OSNet,
-            'xception': tf.keras.applications.xception.Xception,
+            'xception': Xception,
         }[model_name]
         backbone = model_class(
             input_shape=IN_SHAPE, include_top=False, weights=None)
-	
+
 
         # Add a Dropout layer before the final Dense output
         x = tf.keras.layers.GlobalAveragePooling2D()(backbone.output)
@@ -186,25 +185,25 @@ def get_training_model(model_name, dropout_rate, optimizer,
             NUM_CLASSES, activation='softmax', name='Logits',
             kernel_initializer=kernel_initializer,
             bias_initializer=bias_initializer)(x)
-        model = tf.keras.models.Model(inputs=backbone.input, outputs=x)
-        """
-        model = Xception(input_shape=(224,224,3), weights=None)
+        _model = tf.keras.models.Model(inputs=backbone.input, outputs=x)
+
+        #model = Xception(input_shape=(224,224,3), weights=None)
 
     if weight_decay > 0.:
-        _set_l2(model, weight_decay)
+        _set_l2(_model, weight_decay)
     if iter_size > 1:
         optimizer = convert_to_accum_optimizer(optimizer, iter_size)
     if use_lookahead:
         optimizer = convert_to_lookahead_optimizer(optimizer)
 
     # make sure all layers are set to be trainable
-    for layer in model.layers:
+    for layer in _model.layers:
         layer.trainable = True
 
-    model.compile(
+    _model.compile(
         optimizer=optimizer,
         loss='categorical_crossentropy',
         metrics=['accuracy'])
-    print(model.summary())
+    print(_model.summary())
 
-    return model
+    return _model

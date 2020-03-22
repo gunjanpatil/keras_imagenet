@@ -207,6 +207,10 @@ class ImageCoder(object):
     self._decode_jpeg_data = tf.placeholder(dtype=tf.string)
     self._decode_jpeg = tf.image.decode_jpeg(self._decode_jpeg_data, channels=3)
 
+    # Initializes function that decodes PNG data
+    self._decode_png_data = tf.placeholder(dtype=tf.string)
+    self._decode_png = tf.image.decode_png(self._decode_png_data, channels=3) 
+
   def png_to_jpeg(self, image_data):
     return self._sess.run(self._png_to_jpeg,
                           feed_dict={self._png_data: image_data})
@@ -214,6 +218,13 @@ class ImageCoder(object):
   def cmyk_to_rgb(self, image_data):
     return self._sess.run(self._cmyk_to_rgb,
                           feed_dict={self._cmyk_data: image_data})
+
+  def decode_png(self, image_data):
+    image = self._sess.run(self._decode_png, feed_dict={self._decode_png_data: image_data})
+    assert len(image.shape) == 3
+    assert image.shape[2] == 3
+    return image
+
 
   def decode_jpeg(self, image_data):
     image = self._sess.run(self._decode_jpeg,
@@ -276,12 +287,14 @@ def _process_image(filename, coder):
   # Read the image file.
   with tf.gfile.FastGFile(filename, 'rb') as f:
     image_data = f.read()
-
+  #print("[INFO] Inside _process_image function",filename)
+  
   # Clean the dirty data.
   if _is_png(filename):
     # 1 image is a PNG.
     print('Converting PNG to JPEG for %s' % filename)
     image_data = coder.png_to_jpeg(image_data)
+    return
   elif _is_cmyk(filename):
     # 22 JPEG images are in CMYK colorspace.
     print('Converting CMYK to RGB for %s' % filename)
@@ -295,7 +308,7 @@ def _process_image(filename, coder):
   height = image.shape[0]
   width = image.shape[1]
   assert image.shape[2] == 3
-
+  print("height:",height,"width:",width)
   return image_data, height, width
 
 
@@ -453,7 +466,6 @@ def _find_image_files(data_dir, labels_file):
   print('Determining list of input files and labels from %s.' % data_dir)
   challenge_synsets = [l.strip() for l in
                        tf.gfile.FastGFile(labels_file, 'r').readlines()]
-
   labels = []
   filenames = []
   synsets = []
@@ -461,11 +473,15 @@ def _find_image_files(data_dir, labels_file):
   # Leave label index 0 empty as a background class.
   label_index = 1
 
+  print("data dir:",data_dir)
   # Construct the list of JPEG files and labels.
   for synset in challenge_synsets:
-    jpeg_file_path = '%s/%s/*.JPEG' % (data_dir, synset)
+    jpeg_file_path = '%s/%s/*.png' % (data_dir, synset)
+    #print("jpeg file path:", jpeg_file_path)
+    #jpeg_file_path = '%s/%s/*.JPEG' % (data_dir, synset)
     matching_files = tf.gfile.Glob(jpeg_file_path)
-
+    #print("matching files:", matching_files)
+    
     labels.extend([label_index] * len(matching_files))
     synsets.extend([synset] * len(matching_files))
     filenames.extend(matching_files)
@@ -486,8 +502,12 @@ def _find_image_files(data_dir, labels_file):
   synsets = [synsets[i] for i in shuffled_index]
   labels = [labels[i] for i in shuffled_index]
 
-  print('Found %d JPEG files across %d labels inside %s.' %
+  #print('Found %d JPEG files across %d labels inside %s.' %
+  #      (len(filenames), len(challenge_synsets), data_dir))
+  print('Found %d png files across %d labels inside %s.' %
         (len(filenames), len(challenge_synsets), data_dir))
+
+
   return filenames, synsets, labels
 
 
@@ -571,8 +591,8 @@ def main(unused_argv):
   # Run it!
   _process_dataset('validation', FLAGS.validation_directory,
                    FLAGS.validation_shards, synset_to_human)
-  _process_dataset('train', FLAGS.train_directory,
-                   FLAGS.train_shards, synset_to_human)
+  #_process_dataset('train', FLAGS.train_directory,
+  #                 FLAGS.train_shards, synset_to_human)
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ This script is used to train the ImageNet models.
 import os
 import time
 import argparse
+import datetime
 
 import tensorflow as tf
 
@@ -45,7 +46,7 @@ SUPPORTED_MODELS = (
 def train(model_name, dropout_rate, optim_name,
           use_lookahead, batch_size, iter_size,
           lr_sched, initial_lr, final_lr,
-          weight_decay, epochs, dataset_dir):
+          weight_decay, epochs, dataset_dir, model_save_dir, log_dir):
     """Prepare data and train the model."""
     batch_size   = get_batch_size(model_name, batch_size)
     iter_size    = get_iter_size(model_name, iter_size)
@@ -60,10 +61,11 @@ def train(model_name, dropout_rate, optim_name,
 
     # instantiate training callbacks
     lrate = get_lr_func(epochs, lr_sched, initial_lr, final_lr)
-    save_name = model_name if not model_name.endswith('.h5') else \
-                os.path.split(model_name)[-1].split('.')[0].split('-')[0]
+    save_name = "imagenet_xception_"
+    #save_name = model_name if not model_name.endswith('.h5') else \
+    #            os.path.split(model_name)[-1].split('.')[0].split('-')[0]
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
-        os.path.join(config.SAVE_DIR, save_name) + '-ckpt-{epoch:03d}.h5',
+        os.path.join(model_save_dir, timestamp, save_name) + '-ckpt-{epoch:03d}.h5',
         monitor='val_loss',
         save_best_only=True)
     tensorboard = tf.keras.callbacks.TensorBoard(
@@ -79,7 +81,7 @@ def train(model_name, dropout_rate, optim_name,
         weight_decay=weight_decay)
     model.fit(
         x=ds_train,
-        steps_per_epoch=1281167 // batch_size,
+        steps_per_epoch=1277108 // batch_size,
         validation_data=ds_valid,
         validation_steps=50000 // batch_size,
         callbacks=[lrate, model_ckpt, tensorboard],
@@ -92,9 +94,16 @@ def train(model_name, dropout_rate, optim_name,
 
 
 def main():
+
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--dataset_dir', type=str,
                         default=config.DEFAULT_DATASET_DIR)
+    parser.add_argument('--model-save-dir', help="directory to save intermediate models',\ 
+                       type=str, default="/mnt/nas01/workspace_share/data/images/imagenet_training/models")
+    parser.add_argument('--log-dir', help="directory to save tensorboard logs',\ 
+                       type=str, default="/mnt/nas01/workspace_share/data/images/imagenet_training/models")
     parser.add_argument('--dropout_rate', type=float, default=0.0)
     parser.add_argument('--optimizer', type=str, default='adam',
                         choices=['sgd', 'adam', 'rmsprop'])
@@ -114,14 +123,12 @@ def main():
 
     if args.use_lookahead and args.iter_size > 1:
         raise ValueError('cannot set both use_lookahead and iter_size')
-
-    os.makedirs(config.SAVE_DIR, exist_ok=True)
-    os.makedirs(config.LOG_DIR, exist_ok=True)
-    config_keras_backend()
+    
+        config_keras_backend()
     train(args.model, args.dropout_rate, args.optimizer,
           args.use_lookahead, args.batch_size, args.iter_size,
           args.lr_sched, args.initial_lr, args.final_lr,
-          args.weight_decay, args.epochs, args.dataset_dir)
+          args.weight_decay, args.epochs, args.dataset_dir, args.model_save_dir, args.log_dir)
     clear_keras_session()
 
 

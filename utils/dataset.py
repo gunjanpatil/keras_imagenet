@@ -10,6 +10,7 @@ from functools import partial
 
 import tensorflow as tf
 
+
 from config import config
 from utils.image_processing import preprocess_image, resize_and_rescale_image
 
@@ -39,6 +40,11 @@ def decode_jpeg(image_buffer, scope=None):
         image = tf.image.convert_image_dtype(image, dtype=tf.float32)
         return image
 
+def preprocess_input(x):
+    x /= 255.
+    x -= 0.5
+    x *= 2.
+    return x
 
 def _parse_fn(example_serialized, is_training):
     """Helper function for parse_fn_train() and parse_fn_valid()
@@ -80,10 +86,12 @@ def _parse_fn(example_serialized, is_training):
         image = preprocess_image(image, 224, 224, is_training=is_training)
     else:
         image = resize_and_rescale_image(image, 224, 224)
+        #image = preprocess_input(image)
     # The label in the tfrecords is 1~1000 (0 not used).
     # So I think the minus 1 is needed below.
     label = tf.one_hot(parsed['image/class/label'] - 1, 1000, dtype=tf.float32)
     return (image, label)
+
 
 
 def get_dataset(tfrecords_dir, subset, batch_size):

@@ -17,6 +17,7 @@ import tensorflow as tf
 from config import config
 from .googlenet import GoogLeNetBN
 from .inception_v2 import InceptionV2
+from tensorflow.keras.applications.xception import Xception
 from .efficientnet import EfficientNetB0_224x224
 from .efficientnet import EfficientNetB1_224x224
 from .efficientnet import EfficientNetB4_224x224
@@ -24,6 +25,7 @@ from .osnet import OSNet
 from .adamw import AdamW
 from .optimizer import convert_to_accum_optimizer
 from .optimizer import convert_to_lookahead_optimizer
+import tensorflow.keras.optimizers
 
 
 IN_SHAPE = (224, 224, 3)  # shape of input image tensor
@@ -157,6 +159,7 @@ def get_training_model(model_name, dropout_rate, optimizer,
             model_name,
             custom_objects={'AdamW': AdamW})
     else:
+        """
         # initialize the model from scratch
         model_class = {
             'mobilenet_v2': tf.keras.applications.mobilenet_v2.MobileNetV2,
@@ -167,9 +170,11 @@ def get_training_model(model_name, dropout_rate, optimizer,
             'efficientnet_b1': EfficientNetB1_224x224,
             'efficientnet_b4': EfficientNetB4_224x224,
             'osnet': OSNet,
+            'xception': tf.keras.applications.xception.Xception,
         }[model_name]
         backbone = model_class(
             input_shape=IN_SHAPE, include_top=False, weights=None)
+	
 
         # Add a Dropout layer before the final Dense output
         x = tf.keras.layers.GlobalAveragePooling2D()(backbone.output)
@@ -182,6 +187,8 @@ def get_training_model(model_name, dropout_rate, optimizer,
             kernel_initializer=kernel_initializer,
             bias_initializer=bias_initializer)(x)
         model = tf.keras.models.Model(inputs=backbone.input, outputs=x)
+        """
+        model = Xception(input_shape=(224,224,3), weights=None)
 
     if weight_decay > 0.:
         _set_l2(model, weight_decay)

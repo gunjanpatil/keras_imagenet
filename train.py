@@ -79,7 +79,7 @@ def train(model_name, dropout_rate, optim_name,
         _model_save_dir = model_save_dir
     else:
         print("creating model saving directory: ",dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
-        _model_save_dir = os.makedirs(dataset_dir, "models",\
+        _model_save_dir = os.path.join(dataset_dir, "models",\
                           dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
         os.makedirs(_model_save_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)

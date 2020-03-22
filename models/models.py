@@ -103,14 +103,14 @@ def get_lr_func(total_epochs, lr_sched='linear',
 
     2 types of lr_sched are supported: 'linear' or 'exp' (exponential).
     """
-    def linear_decay(epoch):
+    def linear_decay(epoch, lr):
         """Decay LR linearly for each epoch."""
         ratio = max((total_epochs - epoch - 1.) / (total_epochs - 1.), 0.)
         lr = final_lr + (initial_lr - final_lr) * ratio
         print('Epoch %d, lr = %f' % (epoch+1, lr))
         return lr
 
-    def exp_decay(epoch):
+    def exp_decay(epoch, lr):
         """Decay LR exponentially for each epoch."""
         lr_decay = (final_lr / initial_lr) ** (1. / (total_epochs - 1))
         lr = initial_lr * (lr_decay ** epoch)

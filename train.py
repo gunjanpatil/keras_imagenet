@@ -74,7 +74,7 @@ def train(model_name, dropout_rate, optim_name,
     else:
         initial_epoch = 1
     if model_save_dir is not None:
-        print("model saving directory provided")
+        print("model will be loaded from: ", model)
         assert(model.split('/')[:-1]==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
     else:
@@ -103,7 +103,7 @@ def train(model_name, dropout_rate, optim_name,
         x=ds_train,
         steps_per_epoch =  nb_train_samples // batch_size,
         validation_data=ds_valid,
-        validation_steps= nb_validation_samples // batch_size,
+        validation_steps= nb_val_samples // batch_size,
         callbacks=[lrate, model_ckpt, tensorboard],
         # The following doesn't seem to help in terms of speed.
         # use_multiprocessing=True, workers=4,

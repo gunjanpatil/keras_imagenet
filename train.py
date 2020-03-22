@@ -60,8 +60,8 @@ def train(model_name, dropout_rate, optim_name,
     weight_decay = get_weight_decay(model_name, weight_decay)
 
     # get training and validation data
-    ds_train = get_dataset(dataset_dir, 'train', batch_size)
-    ds_valid = get_dataset(dataset_dir, 'validation', batch_size)
+    ds_train = get_dataset(dataset_dir, 'train', batch_size, data_agumentation=data_agumentation)
+    ds_valid = get_dataset(dataset_dir, 'validation', batch_size, data_agumentation=data_agumentation)
 
     # instantiate training callbacks
     lrate = get_lr_func(epochs, lr_sched, initial_lr, final_lr)

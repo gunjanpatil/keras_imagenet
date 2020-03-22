@@ -77,7 +77,7 @@ def train(model_name, dropout_rate, optim_name,
     else:
         initial_epoch = 1
     if model_save_dir is not None:
-        assert(model.split('/')[:-1])==model_save_dir), "model to be loaded is not in model_save_dir"
+        assert(model.split('/')[:-1]==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
     else:
         _model_save_dir = os.makedirs(dataset_dir, "models",\

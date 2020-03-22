@@ -119,10 +119,8 @@ def main():
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--dataset_dir', type=str,
                         default=config.DEFAULT_DATASET_DIR)
-    parser.add_argument('--model-save-dir', type=str,
-                        help="directory to save intermediate models")
-    parser.add_argument('--log-dir', type=str,
-                        help="directory to save tensorboard logs")                       type=str)
+    parser.add_argument('--model-save-dir', help="directory to save intermediate models", type=str)
+    parser.add_argument('--log-dir', help="directory to save tensorboard logs", type=str)                       type=str)
     parser.add_argument('--dropout_rate', type=float, default=0.0)
     parser.add_argument('--optimizer', type=str, default='adam',
                         choices=['sgd', 'adam', 'rmsprop'])

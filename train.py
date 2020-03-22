@@ -46,9 +46,12 @@ SUPPORTED_MODELS = (
 def train(model_name, dropout_rate, optim_name,
           use_lookahead, batch_size, iter_size,
           lr_sched, initial_lr, final_lr,
-          weight_decay, epochs, dataset_dir, model_save_dir, log_dir,
-          data_agumentation, *, model=None):
+          weight_decay, epochs, dataset_dir, log_dir,
+          nb_train_samples, nb_val_samples,
+          data_agumentation, *, model=None, model_save_dir=None):
     """Prepare data and train the model."""
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
     batch_size   = get_batch_size(model_name, batch_size)
     iter_size    = get_iter_size(model_name, iter_size)
     initial_lr   = get_initial_lr(model_name, initial_lr)
@@ -62,13 +65,28 @@ def train(model_name, dropout_rate, optim_name,
 
     # instantiate training callbacks
     lrate = get_lr_func(epochs, lr_sched, initial_lr, final_lr)
-    save_name = "imagenet_xception_"
+
+    # Make directory to save all models at every epoch
+    os.makedirs(folder_name,exist_ok=True)
+
     #save_name = model_name if not model_name.endswith('.h5') else \
     #            os.path.split(model_name)[-1].split('.')[0].split('-')[0]
+    if model:
+        initial_epoch = model.split('/')[-1].split('-')[-1].split('.')[0]
+        print("[INFO] initial_epoch: ",initial_epoch)
+    else:
+        initial_epoch = 1
+    if model_save_dir is not None:
+        assert(model.split('/')[:-1])==model_save_dir), "model to be loaded is not in model_save_dir"
+        _model_save_dir = model_save_dir
+    else:
+        _model_save_dir = os.makedirs(dataset_dir, "models",\
+                          dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
+    print("[INFO]model save directory: ",_model_save_dir)
+    save_name = dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
-        os.path.join(model_save_dir, timestamp, save_name) + '-ckpt-{epoch:03d}.h5',
-        monitor='val_loss',
-        save_best_only=True)
+        os.path.join(_model_save_dir, save_name) + '_ckpt-{epoch}.h5',
+        monitor='val_loss')
     tensorboard = tf.keras.callbacks.TensorBoard(
         log_dir='{}/{}'.format(config.LOG_DIR, time.time()))
 
@@ -83,29 +101,28 @@ def train(model_name, dropout_rate, optim_name,
         model=model)
     model.fit(
         x=ds_train,
-        steps_per_epoch=1277108 // batch_size,
+        steps_per_epoch =  nb_train_samples // batch_size,
         validation_data=ds_valid,
-        validation_steps=50000 // batch_size,
+        validation_steps= _nb_validation_samples // batch_size,
         callbacks=[lrate, model_ckpt, tensorboard],
         # The following doesn't seem to help in terms of speed.
         # use_multiprocessing=True, workers=4,
         epochs=epochs)
 
     # training finished
-    model.save('{}/{}-model-final.h5'.format(config.SAVE_DIR, save_name))
+    print("Saving final model to ",_model_save_dir)
+    model.save('{}/{}-model-final.h5'.format(_model_save_dir, save_name))
 
 
 def main():
 
-    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--dataset_dir', type=str,
                         default=config.DEFAULT_DATASET_DIR)
-    parser.add_argument('--model-save-dir', help="directory to save intermediate models',\
-                       type=str, default="/mnt/nas01/workspace_share/data/images/imagenet_training/models")
-    parser.add_argument('--log-dir', help="directory to save tensorboard logs',\
-                       type=str, default="/mnt/nas01/workspace_share/data/images/imagenet_training/models")
+    parser.add_argument('--model-save-dir', type=str, \
+                        help="directory to save intermediate models")
+    parser.add_argument('--log-dir', type=str, \
+                        help="directory to save tensorboard logs")                       type=str)
     parser.add_argument('--dropout_rate', type=float, default=0.0)
     parser.add_argument('--optimizer', type=str, default='adam',
                         choices=['sgd', 'adam', 'rmsprop'])
@@ -119,6 +136,8 @@ def main():
     parser.add_argument('--weight_decay', type=float, default=-1.)
     parser.add_argument('--epochs', type=int, default=1,
                         help='total number of epochs for training [1]')
+    parser.add_argument('--nb_train_samples',type=int,help="number of training samples")
+    parser.add_argument('--nb_val_samples',type=int,help="number of validation samples")
     parser.add_argument('--data-agumentation',type=bool,
                         help="whether to augment data or not", action="store_true")
     parser.add_argument('--model', type=str,help="path to model h5 file to be loaded")
@@ -132,10 +151,16 @@ def main():
     train(args.model_name, args.dropout_rate, args.optimizer,
           args.use_lookahead, args.batch_size, args.iter_size,
           args.lr_sched, args.initial_lr, args.final_lr,
-          args.weight_decay, args.epochs, args.dataset_dir, args.model_save_dir,
-          args.log_dir, args.data_agumentation, model=args.model)
+          args.weight_decay, args.epochs, args.dataset_dir,
+          args.log_dir, args.nb_train_samples, args.nb_val_samples,
+          args.data_agumentation,
+          model=args.model, model_save_dir=args.model_save_dir)
     clear_keras_session()
 
 
 if __name__ == '__main__':
     main()
+
+import os
+c = "ee/hghf/bjbn_bjhbw_oh-1243.h5"
+c.split('/')[-1].split('-')[-1].split('.')[0]

@@ -209,7 +209,7 @@ class ImageCoder(object):
 
     # Initializes function that decodes PNG data
     self._decode_png_data = tf.placeholder(dtype=tf.string)
-    self._decode_png = tf.image.decode_png(self._decode_png_data, channels=3) 
+    self._decode_png = tf.image.decode_png(self._decode_png_data, channels=3)
 
   def png_to_jpeg(self, image_data):
     return self._sess.run(self._png_to_jpeg,
@@ -288,7 +288,7 @@ def _process_image(filename, coder):
   with tf.gfile.FastGFile(filename, 'rb') as f:
     image_data = f.read()
   #print("[INFO] Inside _process_image function",filename)
-  
+
   # Clean the dirty data.
   if _is_png(filename):
     # 1 image is a PNG.
@@ -308,7 +308,7 @@ def _process_image(filename, coder):
   height = image.shape[0]
   width = image.shape[1]
   assert image.shape[2] == 3
-  print("height:",height,"width:",width)
+  #print("height:",height,"width:",width)
   return image_data, height, width
 
 
@@ -481,7 +481,7 @@ def _find_image_files(data_dir, labels_file):
     #jpeg_file_path = '%s/%s/*.JPEG' % (data_dir, synset)
     matching_files = tf.gfile.Glob(jpeg_file_path)
     #print("matching files:", matching_files)
-    
+
     labels.extend([label_index] * len(matching_files))
     synsets.extend([synset] * len(matching_files))
     filenames.extend(matching_files)

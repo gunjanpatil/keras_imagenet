@@ -22,4 +22,4 @@ config.DEFAULT_DATASET_DIR = os.path.join(
 config.NUM_DATA_WORKERS = 8
 
 # Do image data augmentation or not
-config.DATA_AUGMENTATION = TRUE
+config.DATA_AUGMENTATION = True

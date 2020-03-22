@@ -120,7 +120,7 @@ def main():
     parser.add_argument('--dataset_dir', type=str,
                         default=config.DEFAULT_DATASET_DIR)
     parser.add_argument('--model-save-dir', help="directory to save intermediate models", type=str)
-    parser.add_argument('--log-dir', help="directory to save tensorboard logs", type=str)                      
+    parser.add_argument('--log-dir', help="directory to save tensorboard logs", type=str)
     parser.add_argument('--dropout_rate', type=float, default=0.0)
     parser.add_argument('--optimizer', type=str, default='adam',
                         choices=['sgd', 'adam', 'rmsprop'])
@@ -136,8 +136,8 @@ def main():
                         help='total number of epochs for training [1]')
     parser.add_argument('--nb_train_samples',type=int,help="number of training samples")
     parser.add_argument('--nb_val_samples',type=int,help="number of validation samples")
-    parser.add_argument('--data-agumentation',type=bool,
-                        help="whether to augment data or not", action="store_true")
+    parser.add_argument('--data-agumentation',help="whether to augment data or not",\
+                        action="store_true")
     parser.add_argument('--model', type=str,help="path to model h5 file to be loaded")
     parser.add_argument('--model-name', type=str,help=SUPPORTED_MODELS, default="xception")
     args = parser.parse_args()

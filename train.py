@@ -66,9 +66,6 @@ def train(model_name, dropout_rate, optim_name,
     # instantiate training callbacks
     lrate = get_lr_func(epochs, lr_sched, initial_lr, final_lr)
 
-    # Make directory to save all models at every epoch
-    os.makedirs(folder_name,exist_ok=True)
-
     #save_name = model_name if not model_name.endswith('.h5') else \
     #            os.path.split(model_name)[-1].split('.')[0].split('-')[0]
     if model:
@@ -77,11 +74,14 @@ def train(model_name, dropout_rate, optim_name,
     else:
         initial_epoch = 1
     if model_save_dir is not None:
+        print("model saving directory provided")
         assert(model.split('/')[:-1]==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
     else:
+        print("creating model saving directory")
         _model_save_dir = os.makedirs(dataset_dir, "models",\
                           dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
+        os.makedirs(_model_save_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)
     save_name = dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(

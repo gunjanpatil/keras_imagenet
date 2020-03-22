@@ -103,7 +103,7 @@ def train(model_name, dropout_rate, optim_name,
         x=ds_train,
         steps_per_epoch =  nb_train_samples // batch_size,
         validation_data=ds_valid,
-        validation_steps= _nb_validation_samples // batch_size,
+        validation_steps= nb_validation_samples // batch_size,
         callbacks=[lrate, model_ckpt, tensorboard],
         # The following doesn't seem to help in terms of speed.
         # use_multiprocessing=True, workers=4,

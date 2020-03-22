@@ -78,7 +78,7 @@ def train(model_name, dropout_rate, optim_name,
         assert(model.split('/')[:-1]==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
     else:
-        print("creating model saving directory")
+        print("creating model saving directory: ",dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
         _model_save_dir = os.makedirs(dataset_dir, "models",\
                           dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
         os.makedirs(_model_save_dir,exist_ok=True)

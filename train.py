@@ -43,7 +43,7 @@ SUPPORTED_MODELS = (
     '"osnet" or just specify a saved Keras model (.h5) file')
 
 
-def train(model_name, dropout_rate, optim_name,
+def train(main_dir, model_name, dropout_rate, optim_name,
           use_lookahead, batch_size, iter_size,
           lr_sched, initial_lr, final_lr,
           weight_decay, epochs, dataset_dir, log_dir,
@@ -80,12 +80,12 @@ def train(model_name, dropout_rate, optim_name,
         _model_save_dir = model_save_dir
     else:
         print("creating model saving directory: ",tfrecord_folder+"_"+model_name+"_"+timestamp)
-        _model_save_dir = os.path.join(dataset_dir, "models",\
+        _model_save_dir = os.path.join(main_dir, "models",\
                           tfrecord_folder+"_"+model_name+"_"+timestamp)
         os.makedirs(_model_save_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)
     save_name = tfrecord_folder+"_"+model_name+"_"+timestamp
-    _log_dir = os.path.join(dataset_dir,"logs",tfrecord_folder,"logs_"+save_name)
+    _log_dir = os.path.join(main_dir,"logs",tfrecord_folder,"logs_"+save_name)
     print("[INFO]log directory: ",_log_dir)
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
         os.path.join(_model_save_dir, save_name) + '_ckpt-{epoch}.h5',
@@ -120,8 +120,8 @@ def train(model_name, dropout_rate, optim_name,
 def main():
 
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    parser.add_argument('--dataset_dir', type=str,
-                        default=config.DEFAULT_DATASET_DIR)
+    parser.add_argument('--main_dir',type=str, help="path to main directory consisting of tfrecords,models,logs,etc")
+    parser.add_argument('--dataset_dir', type=str, help="path to tfrecords folder containing train and val tfrecords")
     parser.add_argument('--model-save-dir', help="directory to save intermediate models", type=str)
     parser.add_argument('--log-dir', help="directory to save tensorboard logs", type=str)
     parser.add_argument('--dropout_rate', type=float, default=0.0)
@@ -149,7 +149,7 @@ def main():
         raise ValueError('cannot set both use_lookahead and iter_size')
 
         config_keras_backend()
-    train(args.model_name, args.dropout_rate, args.optimizer,
+    train(args.main_dir,args.model_name, args.dropout_rate, args.optimizer,
           args.use_lookahead, args.batch_size, args.iter_size,
           args.lr_sched, args.initial_lr, args.final_lr,
           args.weight_decay, args.epochs, args.dataset_dir,
@@ -161,7 +161,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-import os
-c = "ee/hghf/bjbn_bjhbw_oh-1243.h5"
-c.split('/')[-1].split('-')[-1].split('.')[0]

@@ -76,7 +76,7 @@ def train(main_dir, model_name, dropout_rate, optim_name,
         initial_epoch = 1
     if model_save_dir is not None:
         print("model will be loaded from: ", model)
-        assert(model.split('/')[:-1]==model_save_dir), "model to be loaded is not in model_save_dir"
+        assert('/'.join(model.split('/')[:-1])==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
     else:
         print("creating model saving directory: ",tfrecord_folder+"_"+model_name+"_"+timestamp)

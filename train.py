@@ -78,14 +78,17 @@ def train(main_dir, model_name, dropout_rate, optim_name,
         print("model will be loaded from: ", model)
         assert('/'.join(model.split('/')[:-1])==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
+        _log_dir = os.path.join(main_dir,"logs",tfrecord_folder,"logs_"+model_save_dir.split('/')[-1])
     else:
         print("creating model saving directory: ",tfrecord_folder+"_"+model_name+"_"+timestamp)
         _model_save_dir = os.path.join(main_dir, "models",\
                           tfrecord_folder+"_"+model_name+"_"+timestamp)
         os.makedirs(_model_save_dir,exist_ok=True)
+        _log_dir = os.path.join(main_dir,"logs",tfrecord_folder,"logs_"+tfrecord_folder+"_"+model_name+"_"+timestamp)
+        os.makedirs(_log_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)
     save_name = tfrecord_folder+"_"+model_name+"_"+timestamp
-    _log_dir = os.path.join(main_dir,"logs",tfrecord_folder,"logs_"+model_save_dir.split('/')[-1])
+
     print("[INFO]log directory: ",_log_dir)
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
         os.path.join(_model_save_dir, save_name) + '_ckpt-{epoch}.h5',

@@ -122,8 +122,8 @@ def main():
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--main_dir',type=str, help="path to main directory consisting of tfrecords,models,logs,etc")
     parser.add_argument('--dataset_dir', type=str, help="path to tfrecords folder containing train and val tfrecords")
-    parser.add_argument('--model-save-dir', help="directory to save intermediate models", type=str)
-    parser.add_argument('--log-dir', help="directory to save tensorboard logs", type=str)
+    parser.add_argument('--model_save_dir', help="directory to save intermediate models", type=str)
+    parser.add_argument('--log_dir', help="directory to save tensorboard logs", type=str)
     parser.add_argument('--dropout_rate', type=float, default=0.0)
     parser.add_argument('--optimizer', type=str, default='adam',
                         choices=['sgd', 'adam', 'rmsprop'])

@@ -539,6 +539,7 @@ def _process_dataset(name, directory, num_shards, synset_to_human):
     synset_to_human: dict of synset to human labels, e.g.,
       'n02119022' --> 'red fox, Vulpes vulpes'
   """
+  print("[INFO]FLAGS.label_files:",FLAGS.labels_file)
   filenames, synsets, labels = _find_image_files(directory, FLAGS.labels_file)
   humans = _find_human_readable_labels(synsets, synset_to_human)
   _process_image_files(name, filenames, synsets, labels,

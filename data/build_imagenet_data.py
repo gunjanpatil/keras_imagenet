@@ -95,9 +95,11 @@ tf.app.flags.DEFINE_string('validation_directory', '/tmp/',
 tf.app.flags.DEFINE_string('output_directory', '/tmp/',
                            'Output data directory')
 
-tf.app.flags.DEFINE_integer('train_shards', 1024,
+#1024
+tf.app.flags.DEFINE_integer('train_shards', 256,
                             'Number of shards in training TFRecord files.')
-tf.app.flags.DEFINE_integer('validation_shards', 128,
+#128
+tf.app.flags.DEFINE_integer('validation_shards', 16,
                             'Number of shards in validation TFRecord files.')
 
 tf.app.flags.DEFINE_integer('num_threads', 4,
@@ -464,8 +466,8 @@ def _find_image_files(data_dir, labels_file):
     labels: list of integer; each integer identifies the ground truth.
   """
   print('Determining list of input files and labels from %s.' % data_dir)
-  challenge_synsets = [l.strip() for l in
-                       tf.gfile.FastGFile(labels_file, 'r').readlines()]
+  #challenge_synsets = [l.strip() for l in tf.gfile.FastGFile(labels_file, 'r').readlines()]
+  challenge_synsets = next(os.walk(data_dir))[-1]
   labels = []
   filenames = []
   synsets = []

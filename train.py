@@ -68,6 +68,7 @@ def train(model_name, dropout_rate, optim_name,
 
     #save_name = model_name if not model_name.endswith('.h5') else \
     #            os.path.split(model_name)[-1].split('.')[0].split('-')[0]
+    tfrecord_folder = dataset_dir.split('/')[-1]
     if model:
         initial_epoch = model.split('/')[-1].split('-')[-1].split('.')[0]
         print("[INFO] initial_epoch: ",initial_epoch)
@@ -78,17 +79,17 @@ def train(model_name, dropout_rate, optim_name,
         assert(model.split('/')[:-1]==model_save_dir), "model to be loaded is not in model_save_dir"
         _model_save_dir = model_save_dir
     else:
-        print("creating model saving directory: ",dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
+        print("creating model saving directory: ",tfrecord_folder+"_"+model_name+"_"+timestamp)
         _model_save_dir = os.path.join(dataset_dir, "models",\
-                          dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp)
+                          tfrecord_folder+"_"+model_name+"_"+timestamp)
         os.makedirs(_model_save_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)
-    save_name = dataset_dir.split('/')[-1]+"_"+model_name+"_"+timestamp
+    save_name = tfrecord_folder+"_"+model_name+"_"+timestamp
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
         os.path.join(_model_save_dir, save_name) + '_ckpt-{epoch}.h5',
         monitor='val_loss')
     tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir='{}/{}'.format(config.LOG_DIR, time.time()))
+        log_dir= os.path.join(dataset_dir,"logs",tfrecord_folder,"logs_"+save_name))
 
     # build model and do training
     model = get_training_model(

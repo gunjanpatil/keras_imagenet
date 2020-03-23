@@ -70,10 +70,10 @@ def train(main_dir, model_name, dropout_rate, optim_name,
     #            os.path.split(model_name)[-1].split('.')[0].split('-')[0]
     tfrecord_folder = dataset_dir.split('/')[-1]
     if model:
-        last_epoch = model.split('/')[-1].split('-')[-1].split('.')[0]
-        print("[INFO] last_epoch: ",last_epoch)
+        initial_epoch = model.split('/')[-1].split('-')[-1].split('.')[0]
+        print("[INFO] initial_epoch: ",initial_epoch)
     else:
-        last_epoch = 0
+        initial_epoch = 0
     if model_save_dir is not None:
         print("model will be loaded from: ", model)
         assert('/'.join(model.split('/')[:-1])==model_save_dir), "model to be loaded is not in model_save_dir"
@@ -104,7 +104,7 @@ def train(main_dir, model_name, dropout_rate, optim_name,
         model=model)
     model.fit(
         x=ds_train,
-        initial_epoch=int(last_epoch)+1,
+        initial_epoch=int(initial_epoch),
         steps_per_epoch =  nb_train_samples // batch_size,
         validation_data=ds_valid,
         validation_steps= nb_val_samples // batch_size,

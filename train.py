@@ -85,11 +85,13 @@ def train(model_name, dropout_rate, optim_name,
         os.makedirs(_model_save_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)
     save_name = tfrecord_folder+"_"+model_name+"_"+timestamp
+    _log_dir = os.path.join(dataset_dir,"logs",tfrecord_folder,"logs_"+save_name)
+    print("[INFO]log directory: ",_log_dir)
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
         os.path.join(_model_save_dir, save_name) + '_ckpt-{epoch}.h5',
         monitor='val_loss')
     tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir= os.path.join(dataset_dir,"logs",tfrecord_folder,"logs_"+save_name))
+        log_dir= _log_dir)
 
     # build model and do training
     model = get_training_model(

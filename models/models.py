@@ -154,7 +154,7 @@ def get_training_model(model_name, dropout_rate, optimizer,
                        use_lookahead, iter_size, weight_decay, model=None):
     """Build the model to be trained."""
     if model:
-        print("Loading saved model")
+        print("[INFO]Loading saved model")
         # load a saved model
         _model = tf.keras.models.load_model(
             model,

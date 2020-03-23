@@ -70,7 +70,7 @@ def train(main_dir, model_name, dropout_rate, optim_name,
     #            os.path.split(model_name)[-1].split('.')[0].split('-')[0]
     tfrecord_folder = dataset_dir.split('/')[-1]
     if model:
-        initial_epoch = model.split('/')[-1].split('-')[-1].split('.')[0]
+        initial_epoch = model.split('/')[-1].split('-')[-1].split('.')[0]+1
         print("[INFO] initial_epoch: ",initial_epoch)
     else:
         initial_epoch = 1
@@ -85,7 +85,7 @@ def train(main_dir, model_name, dropout_rate, optim_name,
         os.makedirs(_model_save_dir,exist_ok=True)
     print("[INFO]model save directory: ",_model_save_dir)
     save_name = tfrecord_folder+"_"+model_name+"_"+timestamp
-    _log_dir = os.path.join(main_dir,"logs",tfrecord_folder,"logs_"+save_name)
+    _log_dir = os.path.join(main_dir,"logs",tfrecord_folder,"logs_"+model_save_dir.split('/')[-1])
     print("[INFO]log directory: ",_log_dir)
     model_ckpt = tf.keras.callbacks.ModelCheckpoint(
         os.path.join(_model_save_dir, save_name) + '_ckpt-{epoch}.h5',
@@ -104,6 +104,7 @@ def train(main_dir, model_name, dropout_rate, optim_name,
         model=model)
     model.fit(
         x=ds_train,
+        initial_epoch=initial_epoch,
         steps_per_epoch =  nb_train_samples // batch_size,
         validation_data=ds_valid,
         validation_steps= nb_val_samples // batch_size,
